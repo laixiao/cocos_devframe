@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, AssetManager, Prefab, instantiate, director, Widget, UITransform, view, assetManager } from 'cc';
+import { _decorator, Component, Node, AssetManager, Prefab, instantiate, director, Widget, UITransform, view, assetManager, Sprite, SpriteFrame, isValid } from 'cc';
 import { UICF, UIConf } from './UIConf';
 import { UIShowTypes, UIView, UIViewData } from './UIView';
 const { ccclass, property } = _decorator;
@@ -105,7 +105,7 @@ export class UIManager {
                         uiInfo.UIView = node.getComponent(UIView);
 
                         // 页面ID
-                        uiInfo.UIView._uuid = uiid;
+                        uiInfo.UIView._uiid = uiid;
                         // 预制体
                         uiInfo.UIView._prefab = prefab;
                         // 优先级
@@ -122,21 +122,30 @@ export class UIManager {
 
     /**
      * 关闭页面
-     * @param UIID 页面ID
+     * @param ui 页面UIView或者ID
      * @param args 传递到上一个页面的参数
      */
-    public close(UIID: number, args: any = null) {
-        let info = this._getUIInfo(UIID);
-        if (info.UIInfo) {
+    public close<T>(ui?: T, args: any = null) {
+        let uiid = this._UIStack[this._UIStack.length - 1].UIID;//如果不传：默认关闭顶部
+        if (ui) {
+            if (typeof ui == "number") {
+                uiid = ui;
+            } else {
+                uiid = (ui as UIView)._uiid;
+            }
+        }
+
+        let info = this._getUIInfo(uiid);
+        if (info && info.UIInfo) {
             if (info.UIInfo.UIView.cache) {
                 // 缓存：放回_UICache
                 info.UIInfo.UIView.node.removeFromParent();
-                this._UICache[UIID] = info.UIInfo;
+                this._UICache[uiid] = info.UIInfo;
             } else {
                 // 不缓存：释放资源
                 info.UIInfo.UIView._prefab.decRef();
                 info.UIInfo.UIView._prefab = null;
-                delete this._UICache[UIID];
+                delete this._UICache[uiid];
 
                 info.UIInfo.UIView.node.destroy();
             }
@@ -152,23 +161,79 @@ export class UIManager {
             info.UIInfo.UIView.onClose();
             // 上一个页面关闭回调
             let topUI = this._getTopUI();
-            topUI?.UIView.onCloseLastUi({ fromUI: UIID, args: args });
-
+            topUI?.UIView.onCloseLastUi({ fromUI: uiid, args: args });
+        } else {
+            console.log("页面不存在")
         }
     }
     /**
      * 页面是否已经显示
-     * @param uiid 页面id
+     * @param ui 页面id
      * @returns 页面UIView组件
      */
-    public getUI(uiid: number): UIView | null {
+    public getUI(ui: number): UIView | null {
         for (let index = 0; index < this._UIStack.length; index++) {
-            if (this._UIStack[index].UIID == uiid) {
+            if (this._UIStack[index].UIID == ui) {
                 return this._UIStack[index].UIView;
             }
         }
         return null;
     }
+
+    /**
+     * 设置精灵图
+     * 
+     * @param ui 页面UIView或者ID
+     * @param path 路径
+     * @param sprite 精力
+     * @returns Promise<SpriteFrame>
+     */
+    public setSpriteFrame<T>(ui: T, path: string, sprite?: Sprite): Promise<SpriteFrame> {
+        let uiView: UIView = this._UIStack[this._UIStack.length - 1].UIView;//如果不传：默认使用顶部
+        if (ui) {
+            if (typeof ui == "number") {
+                uiView = this.getUI(ui);
+            } else {
+                uiView = (ui as UIView);
+            }
+        }
+
+        return new Promise((resolve, reject) => {
+            this._getBundle(path.split("/")[0]).then((bundle: AssetManager.Bundle) => {
+                bundle.load(path.slice(path.indexOf("/") + 1, path.length), SpriteFrame, (err, spriteFrame: SpriteFrame) => {
+                    if (err) {
+                        console.error(err);
+                        reject(null);
+                    } else {
+                        // 设置精灵
+                        if (sprite && sprite.node && sprite.node.isValid) {
+                            sprite.spriteFrame = spriteFrame;
+                        }
+
+                        // 增加引用计数
+                        if (isValid(spriteFrame)) {
+                            spriteFrame.addRef();
+                            uiView._cacheAsset.push(spriteFrame);
+                        }
+
+                        resolve(spriteFrame);
+                    }
+                })
+            })
+        })
+    }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     // =====================私有方法=========================

@@ -4,17 +4,18 @@ cocos开发框架
 
 ## 框架说明
 
-### 按需导入相应模块
+### 按需导入
 
 ### 1.UI管理器：UIManager.ts、UIConf.ts、UIConf.ts
     1.配置页面：UIConf.ts
     2.打开页面：UIManager.instance.open(UIID.AAA, { nick: "xxx" })
+    3.设置图片：UIManager.instance.setSpriteFrame(this, Imgs.head, this.icon).then((spriteFrame: SpriteFrame)=>{ });
     3.常用接口：打开、获取、关闭
 
 
 ### 2.事件管理器：EventManager.ts 
-    1.监听事件：EventManager.instance.on(EventName.GameStart, this.changeScale, this);
-    2.取消监听：EventManager.instance.off(EventName.GameStart, this.changeScale, this);
+    1.监听事件：EventManager.instance.on(EventName.GameStart, this.GameStartFun, this);
+    2.取消监听：EventManager.instance.off(EventName.GameStart, this.GameStartFun, this);
     3.常用接口：监听、触发、移除
 
 ### 3.音频管理器：AudioManager.ts

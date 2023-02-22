@@ -68,7 +68,6 @@
       "y": 1,
       "z": 1
     },
-    "_mobility": 0,
     "_layer": 33554432,
     "_euler": {
       "__type__": "cc.Vec3",
@@ -120,7 +119,6 @@
       "y": 1,
       "z": 1
     },
-    "_mobility": 0,
     "_layer": 33554432,
     "_euler": {
       "__type__": "cc.Vec3",
@@ -288,7 +286,6 @@
       "y": 1,
       "z": 1
     },
-    "_mobility": 0,
     "_layer": 33554432,
     "_euler": {
       "__type__": "cc.Vec3",
@@ -384,7 +381,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "btn_jlk01",
+    "_name": "icon",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1
@@ -421,7 +418,6 @@
       "y": 1,
       "z": 1
     },
-    "_mobility": 0,
     "_layer": 33554432,
     "_euler": {
       "__type__": "cc.Vec3",
@@ -561,7 +557,6 @@
       "y": 1,
       "z": 1
     },
-    "_mobility": 0,
     "_layer": 33554432,
     "_euler": {
       "__type__": "cc.Vec3",
@@ -610,7 +605,6 @@
       "y": 1,
       "z": 1
     },
-    "_mobility": 0,
     "_layer": 33554432,
     "_euler": {
       "__type__": "cc.Vec3",
@@ -855,7 +849,7 @@
     },
     "component": "",
     "_componentId": "7a182NumVJLpa6v+SIpHSvp",
-    "handler": "close",
+    "handler": "btnClose",
     "customEventData": ""
   },
   {
@@ -917,7 +911,6 @@
       "y": 1,
       "z": 1
     },
-    "_mobility": 0,
     "_layer": 33554432,
     "_euler": {
       "__type__": "cc.Vec3",
@@ -966,7 +959,6 @@
       "y": 1,
       "z": 1
     },
-    "_mobility": 0,
     "_layer": 33554432,
     "_euler": {
       "__type__": "cc.Vec3",
@@ -1300,8 +1292,11 @@
     "__prefab": {
       "__id__": 57
     },
+    "cache": true,
     "type": 0,
-    "cache": false,
+    "icon": {
+      "__id__": 19
+    },
     "_id": ""
   },
   {
@@ -1317,7 +1312,6 @@
       "__id__": 0
     },
     "fileId": "37mGuafYRNUbfq6/4bVZAC",
-    "instance": null,
     "targetOverrides": null
   }
 ]

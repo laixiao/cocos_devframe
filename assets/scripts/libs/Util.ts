@@ -1,12 +1,8 @@
 /*
  * @Author: LAIXIAO\laixiao 2515097216@qq.com
  * @Date: 2022-06-06 19:04:58
- * @LastEditors: LAIXIAO\laixiao 2515097216@qq.com
- * @LastEditTime: 2022-06-30 11:54:31
- * @FilePath: \DiRenBieTaiKuang3\assets\game\Scripts\Game\Util.ts
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
-import { _decorator, assetManager, AssetManager } from 'cc';
+import { _decorator, assetManager, AssetManager, Sprite, SpriteFrame } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('Util')

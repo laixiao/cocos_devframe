@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Enum, CCBoolean, Prefab } from 'cc';
+import { _decorator, Component, Node, Enum, CCBoolean, Prefab, Asset, isValid } from 'cc';
 import { UIManager } from './UIManager';
 const { ccclass, property } = _decorator;
 
@@ -15,9 +15,10 @@ export interface UIViewData {
 
 @ccclass('UIView')
 export class UIView extends Component {
-    _uuid: number = 0;
+    _uiid: number = 0;
     _prefab: Prefab = null;
     _priority: number = 0;
+    _cacheAsset: Asset[] = [];
 
     @property({ type: CCBoolean, displayName: "是否缓存" })
     cache: Boolean;
@@ -46,10 +47,22 @@ export class UIView extends Component {
 
     }
 
-    close() {
-        UIManager.instance.close(this._uuid);
+    public onDestroy() {
+        this.releaseAssets();
     }
 
+    public close() {
+        UIManager.instance.close(this._uiid);
+    }
+
+    private releaseAssets() {
+        for (let i = 0; i < this._cacheAsset.length; i++) {
+            if (isValid(this._cacheAsset[i])) {
+                this._cacheAsset[i].decRef()
+            }
+        }
+        this._cacheAsset = [];
+    }
 
 }
 
