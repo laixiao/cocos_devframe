@@ -1,6 +1,6 @@
-# cocos_devframe
+# cocos creator开发框架
 
-<a href="https://laixiao.github.io/cocos_devframe/" title="cocos creator开发框架">cocos开发框架</a>
+<a href="https://github.com/laixiao/cocos_devframe" title="cocos creator开发框架">仓库地址</a>
 
 ## 框架说明
 
