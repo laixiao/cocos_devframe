@@ -1,5 +1,5 @@
 import { _decorator, Component, Node } from 'cc';
-import { UICF } from '../libs/UIConf';
+import { UICF, UIID } from '../libs/UIConf';
 import { UIManager } from '../libs/UIManager';
 import { UIView, UIViewData } from '../libs/UIView';
 const { ccclass, property } = _decorator;
@@ -18,6 +18,9 @@ export class CCC extends UIView {
         console.log(UICF[data.fromUI], data)
     }
 
+    closeToUiBtn(){
+        UIManager.instance.closeToUi(UIID.AAA, { nick: "CCC"})
+    }
 
 }
 

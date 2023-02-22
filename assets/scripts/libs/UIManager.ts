@@ -159,6 +159,7 @@ export class UIManager {
 
             // 关闭页面回调
             info.UIInfo.UIView.onClose();
+
             // 上一个页面关闭回调
             let topUI = this._getTopUI();
             topUI?.UIView.onCloseLastUi({ fromUI: uiid, args: args });
@@ -166,6 +167,53 @@ export class UIManager {
             console.log("页面不存在")
         }
     }
+
+    /**
+     * 关闭到指定页面
+     * @param uiid 页面ID
+     * @param args 传递参数
+     */
+    public closeToUi(uiid: number, args: any = null) {
+        let topUi = this._getTopUI();
+        let fromUI = 0;
+        if (topUi) {
+            fromUI = topUi.UIID;
+        }
+
+        let info = this._getUIInfo(uiid);
+        if (info && info.UIInfo) {
+            console.log(info.i + 1, this._UIStack.length - info.i)
+            let deleteUIs = this._UIStack.splice(info.i + 1, this._UIStack.length - info.i);
+            for (let i = 0; i < deleteUIs.length; i++) {
+                if (deleteUIs[i].UIView.cache) {
+                    // 缓存：放回_UICache
+                    deleteUIs[i].UIView.node.removeFromParent();
+                    this._UICache[uiid] = deleteUIs[i];
+                } else {
+                    // 不缓存：释放资源
+                    deleteUIs[i].UIView._prefab.decRef();
+                    deleteUIs[i].UIView._prefab = null;
+                    delete this._UICache[uiid];
+
+                    deleteUIs[i].UIView.node.destroy();
+                }
+            }
+
+            // 显示顶部页面
+            if (info.UIInfo.UIView.type == UIShowTypes.Single) {
+                this._showTopUI();
+            }
+
+            // 关闭页面回调
+            info.UIInfo.UIView.onClose();
+
+            // 上一个页面关闭回调
+            let topUI = this._getTopUI();
+            topUI?.UIView.onCloseLastUi({ fromUI: fromUI, args: args });
+
+        }
+    }
+
     /**
      * 页面是否已经显示
      * @param ui 页面id

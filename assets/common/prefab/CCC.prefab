@@ -846,7 +846,7 @@
     },
     "component": "",
     "_componentId": "1e32a7/PEJN0YDiuvM3FCwG",
-    "handler": "close",
+    "handler": "closeToUiBtn",
     "customEventData": ""
   },
   {
