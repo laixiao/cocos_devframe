@@ -1292,7 +1292,7 @@
     "__prefab": {
       "__id__": 57
     },
-    "cache": true,
+    "cache": false,
     "type": 0,
     "icon": {
       "__id__": 19
