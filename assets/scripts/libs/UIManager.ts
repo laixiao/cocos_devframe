@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, AssetManager, Prefab, instantiate, director, Widget, UITransform, view, assetManager, Sprite, SpriteFrame, isValid } from 'cc';
+import { _decorator, Component, Node, AssetManager, Prefab, instantiate, director, Widget, UITransform, view, assetManager, Sprite, SpriteFrame, isValid, ImageAsset, Texture2D } from 'cc';
 import { WECHAT } from 'cc/env';
 import { UICF, UIConf } from './UIConf';
 import { UIShowTypes, UIView, UIViewData } from './UIView';
@@ -28,7 +28,10 @@ export class UIManager {
     private _UICache: { [UIID: number]: UIInfo } = {};
     // UI根节点
     private _uiStackNode: Node = null;
-
+    // 打开队列
+    private _openingQueue: { uiid: number, args: any, onProgress?, onComplete?}[] = [];
+    // 是否正在打开
+    private _isOpening: boolean = false;
 
     // ============================公共接口=================================
     /**
@@ -36,99 +39,9 @@ export class UIManager {
      * @param uiid 页面ID
      * @param args 页面传递参数
      */
-    public open(uiid: number, args: any = null): void {
-        let uiConf = UICF[uiid];
-
-        // 获取UI根节点
-        if (!this._uiStackNode) {
-            let canvas = director.getScene().getChildByName('Canvas');
-            if (!canvas) {
-                console.error("canvas节点不存在")
-                return;
-            }
-            if (!canvas.getChildByName('UIStack')) {
-                let uiStackNode = new Node("UIStack");
-                let uiCom = uiStackNode.addComponent(UITransform);
-                uiCom.setContentSize(view.getVisibleSize());
-                canvas.addChild(uiStackNode);
-            }
-            this._uiStackNode = canvas.getChildByName('UIStack');
-        }
-
-        // 检查UI栈
-        let uiStackItem = this._getUIInfo(uiid);
-        if (uiStackItem) {
-            // 同优先级置顶排序
-            if (uiStackItem.i + 1 < this._UIStack.length) {
-                let tempItem = null;
-                for (let i = uiStackItem.i + 1; i < this._UIStack.length; i++) {
-                    if (this._UIStack[i].UIView._priority == uiStackItem.UIInfo.UIView._priority) {
-                        tempItem = this._UIStack[i];
-                        this._UIStack[i - 1] = tempItem;
-                        this._UIStack[i] = uiStackItem.UIInfo;
-                    }
-                }
-            }
-
-            for (let i = 0; i < this._UIStack.length; i++) {
-                if (uiStackItem.UIInfo.UIView.type == UIShowTypes.Single) {
-                    // 单页面
-                    if (this._UIStack[i].UIID == uiid) {
-                        this._UIStack[i].UIView.node.active = true;
-                    } else {
-                        this._UIStack[i].UIView.node.active = false;
-                    }
-                } else {
-                    // 叠加
-                    if (this._UIStack[i].UIID == uiid) {
-                        this._UIStack[i].UIView.node.active = true;
-                        return;
-                    }
-                }
-            }
-            return;
-        }
-
-        // 检查缓存栈
-        if (this._UICache[uiid]) {
-            this._insertUIStack(this._UICache[uiid], args);
-
-        } else {
-            let uiInfo: UIInfo = { UIID: uiid, UIView: null };
-
-            if (UICF[uiid].loading) {
-                if (WECHAT) {
-                    window["wx"].showLoading({ title: "加载中...", mask: true })
-                }
-            }
-            this._getBundle(uiConf.bundle).then((bundle: AssetManager.Bundle) => {
-                bundle.load(uiConf.path, Prefab, (err, prefab: Prefab) => {
-                    if (err) {
-                        console.error("页面路径错误" + uiConf.path)
-                    } else {
-                        // 组件
-                        let node = instantiate(prefab);
-                        uiInfo.UIView = node.getComponent(UIView);
-
-                        // 页面ID
-                        uiInfo.UIView._uiid = uiid;
-                        // 预制体
-                        uiInfo.UIView._prefab = prefab;
-                        // 优先级
-                        uiInfo.UIView._priority = uiConf.priority;
-
-                        this._insertUIStack(uiInfo, args);
-                    }
-
-                    if (UICF[uiid].loading) {
-                        if (WECHAT) {
-                            window["wx"].hideLoading()
-                        }
-                    }
-                })
-            })
-        }
-
+    public open(uiid: number, args: any = null, onProgress?, onComplete?): void {
+        this._openingQueue.push({ uiid: uiid, args: args, onProgress: onProgress, onComplete: onComplete });
+        this.queueStart();
     }
 
     /**
@@ -137,7 +50,7 @@ export class UIManager {
      * @param args 传递到上一个页面的参数
      */
     public close<T>(ui?: T, args: any = null) {
-        let uiid = this._UIStack[this._UIStack.length - 1].UIID;//如果不传：默认关闭顶部
+        let uiid = this._getTopUI()?.UIID;
         if (ui) {
             if (typeof ui == "number") {
                 uiid = ui;
@@ -208,7 +121,7 @@ export class UIManager {
      * @param uiid 界面uiid
      * @param args 传递参数
      */
-    public replace(uiid: number, args: any = null) {
+    public replace(uiid: number, args: any = null, onProgress?, onComplete?) {
         let topUI = this._getTopUI();
 
         let info = this._getUIInfo(topUI.UIID);
@@ -220,7 +133,7 @@ export class UIManager {
             info.UIInfo.UIView.onClose();
         }
 
-        this.open(uiid, args)
+        this.open(uiid, args, onProgress, onComplete)
     }
 
     /**
@@ -240,7 +153,7 @@ export class UIManager {
     /**
      * 批量关闭页面
      * @param obj include包含 exclude排除
-     * @param isClear 是否释放缓存，false则使用默认配置
+     * @param isClear 是否释放缓存
      */
     public closeUIs(obj: { include?: number[], exclude?: number[] }, isClear: boolean = true) {
         let uiStack = [];
@@ -282,6 +195,8 @@ export class UIManager {
 
     /**
      * 设置精灵图
+     *  UIManager.instance.setSpriteFrame(this, Imgs.head, this.icon)
+     *  UIManager.instance.setSpriteFrame(this, "https://oss.99huyu.cn/adsense/production/chengyu/大开眼界.png", this.icon)
      * 
      * @param ui 页面UIView或者ID
      * @param path 路径
@@ -289,7 +204,7 @@ export class UIManager {
      * @returns Promise<SpriteFrame>
      */
     public setSpriteFrame<T>(ui: T, path: string, sprite?: Sprite): Promise<SpriteFrame> {
-        let uiView: UIView = this._UIStack[this._UIStack.length - 1].UIView;//如果不传：默认使用顶部
+        let uiView: UIView = this._getTopUI()?.UIView;
         if (ui) {
             if (typeof ui == "number") {
                 uiView = this.getUI(ui);
@@ -299,27 +214,57 @@ export class UIManager {
         }
 
         return new Promise((resolve, reject) => {
-            this._getBundle(path.split("/")[0]).then((bundle: AssetManager.Bundle) => {
-                bundle.load(path.slice(path.indexOf("/") + 1, path.length), SpriteFrame, (err, spriteFrame: SpriteFrame) => {
+            if (path.indexOf("http://") >= 0 || path.indexOf("https://") >= 0) {
+                // 网络图 远程 url 带图片后缀名
+                assetManager.loadRemote<ImageAsset>(path, function (err, imageAsset) {
                     if (err) {
                         console.error(err);
                         reject(null);
                     } else {
+                        const spriteFrame = new SpriteFrame();
+                        const texture = new Texture2D();
+                        texture.image = imageAsset;
+                        spriteFrame.texture = texture;
+
                         // 设置精灵
                         if (sprite && sprite.node && sprite.node.isValid) {
                             sprite.spriteFrame = spriteFrame;
                         }
-
-                        // 增加引用计数
-                        if (isValid(spriteFrame)) {
-                            spriteFrame.addRef();
-                            uiView._cacheAsset.push(spriteFrame);
-                        }
+                        
+                        // (增加引用计数) 官方不处理，也不addRef() 用完会在合适的时间自动释放。
+                        // if (isValid(spriteFrame)) {
+                        //     spriteFrame.addRef();
+                        //     uiView._cacheAsset.push(spriteFrame);
+                        // }
 
                         resolve(spriteFrame);
                     }
+                });
+            } else {
+                // 本地图
+                this._getBundle(path.split("/")[0]).then((bundle: AssetManager.Bundle) => {
+                    bundle.load(path.slice(path.indexOf("/") + 1, path.length), SpriteFrame, (err, spriteFrame: SpriteFrame) => {
+                        if (err) {
+                            console.error(err);
+                            reject(null);
+                        } else {
+                            // 设置精灵
+                            if (sprite && sprite.node && sprite.node.isValid) {
+                                sprite.spriteFrame = spriteFrame;
+                            }
+
+                            // 增加引用计数
+                            if (isValid(spriteFrame)) {
+                                spriteFrame.addRef();
+                                uiView._cacheAsset.push(spriteFrame);
+                            }
+
+                            resolve(spriteFrame);
+                        }
+                    })
                 })
-            })
+            }
+
         })
     }
 
@@ -337,6 +282,121 @@ export class UIManager {
 
 
     // =====================私有方法=========================
+
+    // 开始打开页面队列
+    private queueStart() {
+        if (this._openingQueue.length > 0) {
+            if (!this._isOpening) {
+                this._isOpening = true;
+                let item = this._openingQueue.shift()
+                this._openTemp(item.uiid, item.args, item.onProgress, item.onComplete);
+            }
+        }
+    }
+    // 继续打开页面队列
+    private _queueContinue() {
+        this._isOpening = false;
+        this.queueStart();
+    }
+    // 打开一个页面
+    private _openTemp(uiid: number, args: any = null, onProgress?, onComplete?): void {
+        let uiConf = UICF[uiid];
+        // 获取UI根节点
+        if (!this._uiStackNode) {
+            let canvas = director.getScene().getChildByName('Canvas');
+            if (!canvas) {
+                console.error("canvas节点不存在")
+                return;
+            }
+            if (!canvas.getChildByName('UIStack')) {
+                let uiStackNode = new Node("UIStack");
+                let uiCom = uiStackNode.addComponent(UITransform);
+                uiCom.setContentSize(view.getVisibleSize());
+                canvas.addChild(uiStackNode);
+            }
+            this._uiStackNode = canvas.getChildByName('UIStack');
+        }
+
+        // 检查UI栈
+        let uiStackItem = this._getUIInfo(uiid);
+        if (uiStackItem) {
+            // 同优先级置顶排序
+            if (uiStackItem.i + 1 < this._UIStack.length) {
+                let tempItem = null;
+                for (let i = uiStackItem.i + 1; i < this._UIStack.length; i++) {
+                    if (this._UIStack[i].UIView._uiPriority == uiStackItem.UIInfo.UIView._uiPriority) {
+                        tempItem = this._UIStack[i];
+                        this._UIStack[i - 1] = tempItem;
+                        this._UIStack[i] = uiStackItem.UIInfo;
+                    }
+                }
+            }
+
+            for (let i = 0; i < this._UIStack.length; i++) {
+                if (uiStackItem.UIInfo.UIView.type == UIShowTypes.Single) {
+                    // 单页面
+                    if (this._UIStack[i].UIID == uiid) {
+                        this._UIStack[i].UIView.node.active = true;
+                    } else {
+                        this._UIStack[i].UIView.node.active = false;
+                    }
+                } else {
+                    // 叠加
+                    if (this._UIStack[i].UIID == uiid) {
+                        this._UIStack[i].UIView.node.active = true;
+                        return;
+                    }
+                }
+            }
+
+            this._queueContinue();
+            return;
+        }
+
+        // 检查缓存栈
+        if (this._UICache[uiid]) {
+            this._insertUIStack(this._UICache[uiid], args);
+
+        } else {
+            let uiInfo: UIInfo = { UIID: uiid, UIView: null };
+
+            if (UICF[uiid].loading) {
+                if (WECHAT) {
+                    window["wx"].showLoading({ title: "加载中...", mask: true })
+                }
+            }
+            this._getBundle(uiConf.bundle).then((bundle: AssetManager.Bundle) => {
+                bundle.load(uiConf.path, Prefab, onProgress, (err, prefab: Prefab) => {
+                    if (err) {
+                        console.error("页面路径错误" + uiConf.path)
+                    } else {
+                        // 组件
+                        let node = instantiate(prefab);
+                        uiInfo.UIView = node.getComponent(UIView);
+
+                        // 页面ID
+                        uiInfo.UIView._uiid = uiid;
+                        // 预制体
+                        uiInfo.UIView._prefab = prefab;
+                        // 优先级
+                        uiInfo.UIView._uiPriority = uiConf.priority;
+
+                        this._insertUIStack(uiInfo, args);
+                    }
+
+                    if (UICF[uiid].loading) {
+                        if (WECHAT) {
+                            window["wx"].hideLoading()
+                        }
+                    }
+
+                    onComplete && onComplete(err, prefab);
+                })
+            })
+        }
+    }
+
+
     // 获取页面信息
     private _getUIInfo(UIID: number): { i: number, UIInfo: UIInfo } | null {
         for (let i = 0; i < this._UIStack.length; i++) {
@@ -358,7 +418,7 @@ export class UIManager {
 
         let pushed = false;
         for (let i = this._UIStack.length - 1; i >= 0; i--) {
-            if (this._UIStack[i].UIView._priority > uiInfo.UIView._priority) {
+            if (this._UIStack[i].UIView._uiPriority > uiInfo.UIView._uiPriority) {
                 this._UIStack[i].UIView.node.setSiblingIndex(i + 1);
             } else {
                 this._UIStack.splice(i + 1, 0, uiInfo)
@@ -384,6 +444,7 @@ export class UIManager {
         // 打开页面事件
         uiInfo.UIView.onOpen({ fromUI: fromUI, args: args });
 
+        this._queueContinue();
     }
 
     // 显示顶部的UI（单页面模式）

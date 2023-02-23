@@ -4,9 +4,9 @@ export enum UIID {
     CCC
 }
 export let UICF: { [key: number]: UIConf } = {
-    [UIID.AAA]: { bundle: "common", path: "prefab/AAA", priority: 1 },
+    [UIID.AAA]: { bundle: "common", path: "prefab/AAA", priority: 1, loading: true },
     [UIID.BBB]: { bundle: "common", path: "prefab/BBB", priority: 2 },
-    [UIID.CCC]: { bundle: "common", path: "prefab/CCC", priority: 3 },
+    [UIID.CCC]: { bundle: "common", path: "prefab/CCC", priority: 2 },
 
 }
 

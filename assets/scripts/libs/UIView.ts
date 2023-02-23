@@ -17,11 +17,11 @@ export interface UIViewData {
 export class UIView extends Component {
     _uiid: number = 0;
     _prefab: Prefab = null;
-    _priority: number = 0;
+    _uiPriority: number = 0;
     _cacheAsset: Asset[] = [];
 
-    @property({ type: CCBoolean, displayName: "是否缓存" })
-    cache: Boolean;
+    @property({ displayName: "是否缓存" })
+    cache: boolean = false;
 
     @property({ type: Enum(UIShowTypes), displayName: "显示方式" })
     type: UIShowTypes = UIShowTypes.Single;

@@ -14,9 +14,9 @@ export class BBB extends UIView {
 
         UIManager.instance.setSpriteFrame(this, "common/texture/alien_magic/spriteFrame", this.icon);
 
-        this.scheduleOnce(()=>{
-            UIManager.instance.setSpriteFrame(this, "common/texture/alien_tongue/spriteFrame", this.icon);
-        },3)
+        // this.scheduleOnce(()=>{
+        //     UIManager.instance.setSpriteFrame(this, "common/texture/alien_tongue/spriteFrame", this.icon);
+        // },3)
 
     }
 
