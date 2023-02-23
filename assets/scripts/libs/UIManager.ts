@@ -1,4 +1,5 @@
 import { _decorator, Component, Node, AssetManager, Prefab, instantiate, director, Widget, UITransform, view, assetManager, Sprite, SpriteFrame, isValid } from 'cc';
+import { WECHAT } from 'cc/env';
 import { UICF, UIConf } from './UIConf';
 import { UIShowTypes, UIView, UIViewData } from './UIView';
 const { ccclass, property } = _decorator;
@@ -95,6 +96,11 @@ export class UIManager {
         } else {
             let uiInfo: UIInfo = { UIID: uiid, UIView: null };
 
+            if (UICF[uiid].loading) {
+                if (WECHAT) {
+                    window["wx"].showLoading({ title: "加载中...", mask: true })
+                }
+            }
             this._getBundle(uiConf.bundle).then((bundle: AssetManager.Bundle) => {
                 bundle.load(uiConf.path, Prefab, (err, prefab: Prefab) => {
                     if (err) {
@@ -114,6 +120,11 @@ export class UIManager {
                         this._insertUIStack(uiInfo, args);
                     }
 
+                    if (UICF[uiid].loading) {
+                        if (WECHAT) {
+                            window["wx"].hideLoading()
+                        }
+                    }
                 })
             })
         }
@@ -137,18 +148,7 @@ export class UIManager {
 
         let info = this._getUIInfo(uiid);
         if (info && info.UIInfo) {
-            if (info.UIInfo.UIView.cache) {
-                // 缓存：放回_UICache
-                info.UIInfo.UIView.node.removeFromParent();
-                this._UICache[uiid] = info.UIInfo;
-            } else {
-                // 不缓存：释放资源
-                info.UIInfo.UIView._prefab.decRef();
-                info.UIInfo.UIView._prefab = null;
-                delete this._UICache[uiid];
-
-                info.UIInfo.UIView.node.destroy();
-            }
+            this._recycle(info.UIInfo);
 
             this._UIStack.splice(info.i, 1);
 
@@ -182,21 +182,10 @@ export class UIManager {
 
         let info = this._getUIInfo(uiid);
         if (info && info.UIInfo) {
-            console.log(info.i + 1, this._UIStack.length - info.i)
+            // console.log(info.i + 1, this._UIStack.length - info.i)
             let deleteUIs = this._UIStack.splice(info.i + 1, this._UIStack.length - info.i);
             for (let i = 0; i < deleteUIs.length; i++) {
-                if (deleteUIs[i].UIView.cache) {
-                    // 缓存：放回_UICache
-                    deleteUIs[i].UIView.node.removeFromParent();
-                    this._UICache[uiid] = deleteUIs[i];
-                } else {
-                    // 不缓存：释放资源
-                    deleteUIs[i].UIView._prefab.decRef();
-                    deleteUIs[i].UIView._prefab = null;
-                    delete this._UICache[uiid];
-
-                    deleteUIs[i].UIView.node.destroy();
-                }
+                this._recycle(deleteUIs[i]);
             }
 
             // 显示顶部页面
@@ -215,13 +204,33 @@ export class UIManager {
     }
 
     /**
+     * 替换栈顶界面
+     * @param uiid 界面uiid
+     * @param args 传递参数
+     */
+    public replace(uiid: number, args: any = null) {
+        let topUI = this._getTopUI();
+
+        let info = this._getUIInfo(topUI.UIID);
+        if (info && info.UIInfo) {
+            this._recycle(info.UIInfo);
+
+            this._UIStack.splice(info.i, 1);
+            // 关闭页面回调
+            info.UIInfo.UIView.onClose();
+        }
+
+        this.open(uiid, args)
+    }
+
+    /**
      * 页面是否已经显示
-     * @param ui 页面id
+     * @param uiid 页面id
      * @returns 页面UIView组件
      */
-    public getUI(ui: number): UIView | null {
+    public getUI(uiid: number): UIView | null {
         for (let index = 0; index < this._UIStack.length; index++) {
-            if (this._UIStack[index].UIID == ui) {
+            if (this._UIStack[index].UIID == uiid) {
                 return this._UIStack[index].UIView;
             }
         }
@@ -371,6 +380,21 @@ export class UIManager {
                 })
             }
         })
+    }
+
+    private _recycle(uiInfo: UIInfo) {
+        if (uiInfo.UIView.cache) {
+            // 缓存：放回_UICache
+            uiInfo.UIView.node.removeFromParent();
+            this._UICache[uiInfo.UIID] = uiInfo;
+        } else {
+            // 不缓存：释放资源
+            uiInfo.UIView._prefab.decRef();
+            uiInfo.UIView._prefab = null;
+            delete this._UICache[uiInfo.UIID];
+
+            uiInfo.UIView.node.destroy();
+        }
     }
 
 }

@@ -36,6 +36,10 @@ export class BBB extends UIView {
         UIManager.instance.close()
     }
 
+    replaceBtn(){
+        UIManager.instance.replace(UIID.CCC)
+    }
+
 
 }
 
