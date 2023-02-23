@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Sprite } from 'cc';
+import { _decorator, Component, Node, Sprite, assetManager } from 'cc';
 import { UICF, UIID } from '../libs/UIConf';
 import { UIManager } from '../libs/UIManager';
 import { UIView, UIViewData } from '../libs/UIView';
@@ -38,6 +38,9 @@ export class BBB extends UIView {
         UIManager.instance.replace(UIID.CCC)
     }
 
+    testBtn(){
+        console.log(assetManager)
+    }
 
 }
 

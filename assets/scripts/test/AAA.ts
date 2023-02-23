@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Sprite, SpriteFrame } from 'cc';
+import { _decorator, Component, Node, Sprite, SpriteFrame, assetManager } from 'cc';
 import { UICF, UIID } from '../libs/UIConf';
 import { UIManager } from '../libs/UIManager';
 import { UIView, UIViewData } from '../libs/UIView';
@@ -28,7 +28,8 @@ export class AAA extends UIView {
     }
 
     public onCloseLastUi(data: UIViewData): void {
-        console.log(UICF[data.fromUI], data)
+        // console.log(UICF[data.fromUI], data)
+
     }
 
     openBBB() {
@@ -37,7 +38,7 @@ export class AAA extends UIView {
         }, (err, uiView: UIView) => {
             console.log(err, uiView)
         })
-        UIManager.instance.open(UIID.CCC)
+        // UIManager.instance.open(UIID.CCC)
     }
 
     btnClose() {
@@ -45,6 +46,9 @@ export class AAA extends UIView {
 
     }
 
+    testBtn(){
+        console.log(assetManager)
+    }
 
 }
 

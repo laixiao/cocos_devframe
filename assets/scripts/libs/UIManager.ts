@@ -218,7 +218,7 @@ export class UIManager {
         return new Promise((resolve, reject) => {
             if (path.indexOf("http://") >= 0 || path.indexOf("https://") >= 0) {
                 // 网络图 远程 url 带图片后缀名
-                assetManager.loadRemote<ImageAsset>(path, function (err, imageAsset) {
+                assetManager.loadRemote<ImageAsset>(path, function (err, imageAsset: ImageAsset) {
                     if (err) {
                         console.error(err);
                         reject(null);
@@ -234,9 +234,9 @@ export class UIManager {
                         }
                         
                         // (增加引用计数) 不确定是否生效
-                        if (isValid(spriteFrame)) {
-                            spriteFrame.addRef();
-                            uiView._cacheAsset.push(spriteFrame);
+                        if (isValid(imageAsset)) {
+                            imageAsset.addRef();
+                            uiView._cacheAsset.push(imageAsset);
                         }
 
                         resolve(spriteFrame);
