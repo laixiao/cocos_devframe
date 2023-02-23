@@ -152,13 +152,13 @@ export class UIManager {
 
             this._UIStack.splice(info.i, 1);
 
+            // 关闭页面回调
+            info.UIInfo.UIView.onClose();
+
             // 显示顶部页面
             if (info.UIInfo.UIView.type == UIShowTypes.Single) {
                 this._showTopUI();
             }
-
-            // 关闭页面回调
-            info.UIInfo.UIView.onClose();
 
             // 上一个页面关闭回调
             let topUI = this._getTopUI();
@@ -174,10 +174,10 @@ export class UIManager {
      * @param args 传递参数
      */
     public closeToUi(uiid: number, args: any = null) {
-        let topUi = this._getTopUI();
+        let topUiOld = this._getTopUI();
         let fromUI = 0;
-        if (topUi) {
-            fromUI = topUi.UIID;
+        if (topUiOld) {
+            fromUI = topUiOld.UIID;
         }
 
         let info = this._getUIInfo(uiid);
@@ -188,17 +188,17 @@ export class UIManager {
                 this._recycle(deleteUIs[i]);
             }
 
+            // 关闭页面回调
+            topUiOld?.UIView.onClose();
+
             // 显示顶部页面
             if (info.UIInfo.UIView.type == UIShowTypes.Single) {
                 this._showTopUI();
             }
 
-            // 关闭页面回调
-            info.UIInfo.UIView.onClose();
-
             // 上一个页面关闭回调
-            let topUI = this._getTopUI();
-            topUI?.UIView.onCloseLastUi({ fromUI: fromUI, args: args });
+            let topUINew = this._getTopUI();
+            topUINew?.UIView.onCloseLastUi({ fromUI: fromUI, args: args });
 
         }
     }
@@ -236,6 +236,49 @@ export class UIManager {
         }
         return null;
     }
+
+    /**
+     * 批量关闭页面
+     * @param obj include包含 exclude排除
+     * @param isClear 是否释放缓存，false则使用默认配置
+     */
+    public closeUIs(obj: { include?: number[], exclude?: number[] }, isClear: boolean = true) {
+        let uiStack = [];
+
+        // 包含的
+        if (obj.include) {
+            for (let i = 0; i < obj.include.length; i++) {
+                uiStack.push({ UIID: obj.include[i] })
+            }
+        }
+
+        // 排除的
+        if (obj.exclude) {
+            uiStack = this._UIStack.filter((ele) => {
+                if (obj.exclude.indexOf(ele.UIID) < 0) {
+                    return true;
+                } else {
+                    return false;
+                }
+            })
+
+        }
+
+        for (let i = 0; i < uiStack.length; i++) {
+            let info = this._getUIInfo(uiStack[i].UIID);
+            if (info) {
+                // 是否释放缓存
+                if (isClear) {
+                    info.UIInfo.UIView.cache = false;
+                }
+
+                this._recycle(info.UIInfo);
+
+                this._UIStack.splice(info.i, 1);
+            }
+        }
+    }
+
 
     /**
      * 设置精灵图

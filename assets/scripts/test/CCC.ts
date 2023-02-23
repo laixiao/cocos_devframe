@@ -18,8 +18,12 @@ export class CCC extends UIView {
         console.log(UICF[data.fromUI], data)
     }
 
-    closeToUiBtn(){
-        UIManager.instance.closeToUi(UIID.AAA, { nick: "CCC"})
+    closeToUiBtn() {
+        UIManager.instance.closeToUi(UIID.AAA, { nick: "CCC" })
+    }
+
+    closeUIsBtn() {
+        UIManager.instance.closeUIs({ include: [UIID.AAA, UIID.BBB] })
     }
 
 }
