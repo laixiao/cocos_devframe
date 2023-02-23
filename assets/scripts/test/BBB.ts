@@ -12,7 +12,7 @@ export class BBB extends UIView {
     public onOpen(data: UIViewData): void {
         console.log(data)
 
-        UIManager.instance.setSpriteFrame(this, "common/texture/alien_magic/spriteFrame", this.icon);
+        UIManager.instance.setSpriteFrame(this, "https://oss.99huyu.cn/adsense/production/chengyu/大开眼界.png", this.icon)
 
         // this.scheduleOnce(()=>{
         //     UIManager.instance.setSpriteFrame(this, "common/texture/alien_tongue/spriteFrame", this.icon);

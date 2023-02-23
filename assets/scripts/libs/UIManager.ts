@@ -38,6 +38,8 @@ export class UIManager {
      * 打开页面 
      * @param uiid 页面ID
      * @param args 页面传递参数
+     * @param onProgress 进度回调 (finished: number, total: number, item: any) => { }
+     * @param onComplete 完成回调 (err, uiView: UIView) => { }
      */
     public open(uiid: number, args: any = null, onProgress?, onComplete?): void {
         this._openingQueue.push({ uiid: uiid, args: args, onProgress: onProgress, onComplete: onComplete });
@@ -390,7 +392,7 @@ export class UIManager {
                         }
                     }
 
-                    onComplete && onComplete(err, prefab);
+                    onComplete && onComplete(err, uiInfo.UIView);
                 })
             })
         }

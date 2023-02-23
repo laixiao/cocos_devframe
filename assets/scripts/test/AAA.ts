@@ -12,9 +12,7 @@ export class AAA extends UIView {
     public onOpen(data: UIViewData): void {
         console.log(data)
 
-        // UIManager.instance.setSpriteFrame(this, "common/texture/alien_magic/spriteFrame", this.icon).then((spriteFrame: SpriteFrame) => { });
-
-        UIManager.instance.setSpriteFrame(this, "https://oss.99huyu.cn/adsense/production/chengyu/大开眼界.png", this.icon)
+        UIManager.instance.setSpriteFrame(this, "common/texture/alien_magic/spriteFrame", this.icon).then((spriteFrame: SpriteFrame) => { });
 
         // this.scheduleOnce(() => {
         //     UIManager.instance.setSpriteFrame(this, "common/texture/alien_tongue/spriteFrame", this.icon);
@@ -22,7 +20,7 @@ export class AAA extends UIView {
 
         // https://oss.99huyu.cn/adsense/production/chengyu/大开眼界.png
 
-        
+
     }
 
     update(deltaTime: number) {
@@ -36,12 +34,15 @@ export class AAA extends UIView {
     openBBB() {
         UIManager.instance.open(UIID.BBB, null, (finished: number, total: number, item: any) => {
             console.log(finished, total)
+        }, (err, uiView: UIView) => {
+            console.log(err, uiView)
         })
         UIManager.instance.open(UIID.CCC)
     }
 
     btnClose() {
         UIManager.instance.close(this)
+
     }
 
 
