@@ -202,7 +202,7 @@ export class UIManager {
      * 
      * @param ui 页面UIView或者ID
      * @param path 路径
-     * @param sprite 精力
+     * @param sprite 精灵
      * @returns Promise<SpriteFrame>
      */
     public setSpriteFrame<T>(ui: T, path: string, sprite?: Sprite): Promise<SpriteFrame> {
@@ -233,11 +233,11 @@ export class UIManager {
                             sprite.spriteFrame = spriteFrame;
                         }
                         
-                        // (增加引用计数) 官方不处理，也不addRef() 用完会在合适的时间自动释放。
-                        // if (isValid(spriteFrame)) {
-                        //     spriteFrame.addRef();
-                        //     uiView._cacheAsset.push(spriteFrame);
-                        // }
+                        // (增加引用计数) 不确定是否生效
+                        if (isValid(spriteFrame)) {
+                            spriteFrame.addRef();
+                            uiView._cacheAsset.push(spriteFrame);
+                        }
 
                         resolve(spriteFrame);
                     }
