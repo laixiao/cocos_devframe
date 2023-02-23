@@ -378,10 +378,12 @@ export class UIManager {
 
                         // 页面ID
                         uiInfo.UIView._uiid = uiid;
-                        // 预制体
-                        uiInfo.UIView._prefab = prefab;
                         // 优先级
                         uiInfo.UIView._uiPriority = uiConf.priority;
+                        // 预制体
+                        uiInfo.UIView._prefab = prefab;
+                        // 增加引用
+                        prefab.addRef();
 
                         this._insertUIStack(uiInfo, args);
                     }

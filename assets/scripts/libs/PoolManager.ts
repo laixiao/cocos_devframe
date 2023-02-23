@@ -1,4 +1,4 @@
-import { NodePool, Prefab, Node, instantiate, assetManager, AssetManager } from "cc";
+import { NodePool, Prefab, Node, instantiate, assetManager, AssetManager, isValid } from "cc";
 
 /*
  *   @class PoolManager
@@ -74,6 +74,10 @@ export default class PoolManager {
                         console.error(path + '资源加载错误>>>>>', err)
                     } else {
                         this.pools_prefab[path] = prefab;
+
+                        if (isValid(this.pools_prefab[path])) {
+                            (this.pools_prefab[path] as Prefab).addRef();
+                        }
                     }
                     callback();
                 });
@@ -130,10 +134,6 @@ export default class PoolManager {
                     this.autoInitPool();
                 }
             }
-        }
-
-        if (node && this.pools_prefab[path]) {
-            (this.pools_prefab[path] as Prefab).addRef();
         }
 
         // if (!node) {
@@ -299,7 +299,7 @@ export default class PoolManager {
      * @param {*} node 对象
      * @param {*} isRelease 是否释放
      */
-    public putItem(path: string, node: Node, autoRelease: boolean = false) {
+    public putItem(path: string, node: Node, isRelease: boolean = false) {
         if (path && node && node.isValid && this.pools_prefab[path]) {
             // 从老爸移除，避免关联释放
             if (node.parent) {
@@ -310,67 +310,21 @@ export default class PoolManager {
             // 回收
             this.pools[path].put(node);
 
-            // 释放资源：一旦引用计数为零，Creator 会对资源进行自动释放         
-            if ((this.pools_prefab[path] as Prefab).decRef(autoRelease).refCount <= 0) {
-                if (autoRelease) {
-                    this.pools[path].clear();
-                    this.pools[path] = null;
-                    delete this.pools[path];
-
-                    this.pools_prefab[path] = null;
-                    delete this.pools_prefab[path];
+            // 释放资源：一旦引用计数为零，Creator 会对资源进行自动释放    
+            if (isRelease &&  (this.pools[path] as NodePool).size()) {
+                // 清除对象池
+                (this.pools[path] as NodePool).clear();
+                // 释放引用
+                if (isValid(this.pools_prefab[path])) {
+                    (this.pools_prefab[path] as Prefab).decRef();
                 }
+
+                delete this.pools[path];
+                delete this.pools_prefab[path];
             }
         }
         // console.log(path+"对象池大小：", this.pools[path].size())
     }
-
-
-    // /**
-    //  * 把对象放回某一对象池
-    //  * @param {*} path 资源路径
-    //  * @param {*} node 对象
-    //  * @param {*} isRelease 是否释放
-    //  */
-    // _putQueue: { path: string, node: Node, autoRelease: boolean }[] = [];
-    // _puting: boolean = false;//是否正在put
-    // public putItem(path: string, node: Node, autoRelease: boolean = false) {
-    //     this._putQueue.push({ path: path, node: node, autoRelease: autoRelease });
-    //     this._startPut();
-
-    // }
-    // private _startPut() {
-    //     if (!this._puting && this._putQueue.length > 0) {
-    //         this._puting = true;
-    //         let item: { path: string, node: Node, autoRelease: boolean } = this._putQueue.shift()
-    //         if (item.path && item.node && item.node.isValid && this.pools_prefab[item.path]) {
-    //             // 从老爸移除，避免关联释放
-    //             if (item.node.parent) {
-    //                 item.node.removeFromParent();
-    //             }
-    //             item.node.parent = null;
-
-    //             // 回收
-    //             this.pools[item.path].put(item.node);
-
-    //             // 释放资源：一旦引用计数为零，Creator 会对资源进行自动释放         
-    //             if ((this.pools_prefab[item.path] as Prefab).decRef(item.autoRelease).refCount <= 0) {
-    //                 if (item.autoRelease) {
-    //                     this.pools[item.path].clear();
-    //                     this.pools[item.path] = null;
-    //                     delete this.pools[item.path];
-
-    //                     this.pools_prefab[item.path] = null;
-    //                     delete this.pools_prefab[item.path];
-    //                 }
-    //             }
-    //         }
-    //         // console.log(path+"对象池大小：", this.pools[path].size())
-
-    //         this._puting = false;
-    //         this._startPut();
-    //     }
-    // }
 
     // 清空对象池
     public clearAll() {
@@ -378,18 +332,14 @@ export default class PoolManager {
             if (Object.prototype.hasOwnProperty.call(this.pools, key)) {
                 this.limitObj[key].spawnCount = 0;
 
-                // 释放预制体
-                for (let i = 0; i < this.pools[key].size(); i++) {
-                    (this.pools_prefab[key] as Prefab).decRef(true)
-                }
-
                 // 清除对象池
                 this.pools[key].clear();
-                this.pools[key] = null;
-                delete this.pools[key];
+                // 释放引用
+                if (isValid(this.pools_prefab[key])) {
+                    (this.pools_prefab[key] as Prefab).decRef()
+                }
 
-                // 清除预制体索引
-                this.pools_prefab[key] = null;
+                delete this.pools[key];
                 delete this.pools_prefab[key];
             }
         }

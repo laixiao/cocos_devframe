@@ -1,4 +1,5 @@
-import { _decorator, Component, Node, Sprite, SpriteFrame, assetManager } from 'cc';
+import { _decorator, Component, Node, Sprite, SpriteFrame, assetManager, v3 } from 'cc';
+import PoolManager from '../libs/PoolManager';
 import { UICF, UIID } from '../libs/UIConf';
 import { UIManager } from '../libs/UIManager';
 import { UIView, UIViewData } from '../libs/UIView';
@@ -21,10 +22,29 @@ export class AAA extends UIView {
         // https://oss.99huyu.cn/adsense/production/chengyu/大开眼界.png
 
 
+        this.schedule(this.spawnEnemy, 1, 5);
+
+
+
+    }
+    spawnEnemy() {
+        PoolManager.instance.getItemSync("common/prefab/Enemy").then((node: Node) => {
+            if (node) {
+                node.parent = this.icon.node;
+                node.setPosition(v3(Math.random() * 300, Math.random() * 300, 0))
+
+            }
+        })
     }
 
     update(deltaTime: number) {
 
+    }
+
+    onDisable() {
+        for (let i = 0; i < this.icon.node.children.length; i++) {
+            PoolManager.instance.putItem("common/prefab/Enemy", this.icon.node.children[i], true)
+        }
     }
 
     public onCloseLastUi(data: UIViewData): void {
@@ -46,7 +66,7 @@ export class AAA extends UIView {
 
     }
 
-    testBtn(){
+    testBtn() {
         console.log(assetManager)
     }
 
