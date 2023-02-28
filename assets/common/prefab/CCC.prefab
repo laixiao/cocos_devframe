@@ -870,7 +870,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "Button-002",
+    "_name": "openAAA",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1
@@ -898,7 +898,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -551.3,
+      "y": -407.084,
       "z": 0
     },
     "_lrot": {
@@ -984,7 +984,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 208.05,
+      "width": 163.99,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -996,7 +996,7 @@
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "8fHmgs3WRAoJDQ5uEls7Qc"
+    "fileId": "11xmaeqgxGO4cOVdakpj/z"
   },
   {
     "__type__": "cc.Label",
@@ -1019,7 +1019,7 @@
       "b": 0,
       "a": 255
     },
-    "_string": "closeUIsBtn",
+    "_string": "openAAA",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 36,
@@ -1040,7 +1040,7 @@
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "9f0UNqGJtDxbVXg8zqsQx/"
+    "fileId": "ae8/w5qsZMl6rku4f9C/cT"
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -1050,7 +1050,7 @@
     "asset": {
       "__id__": 0
     },
-    "fileId": "e8VRF/TS1B5KxXnYQ/BNx9"
+    "fileId": "8bwRGp6oVABbbrbkvkyMKd"
   },
   {
     "__type__": "cc.UITransform",
@@ -1077,7 +1077,7 @@
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "ae6IZst2JNiptCLYCdmJum"
+    "fileId": "bdB8UwQkJAGqfcOA91gNRl"
   },
   {
     "__type__": "cc.Sprite",
@@ -1121,7 +1121,7 @@
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "7aWJ4HN/hIbJ/URojVB84I"
+    "fileId": "d1736tlmJGLo7UtPkqaRfz"
   },
   {
     "__type__": "cc.Button",
@@ -1194,7 +1194,7 @@
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "1fsXe3KEVHC4VHdUjLYmlv"
+    "fileId": "9c5qEQlgdL5IVMaSa4j8vT"
   },
   {
     "__type__": "cc.ClickEvent",
@@ -1203,7 +1203,7 @@
     },
     "component": "",
     "_componentId": "1e32a7/PEJN0YDiuvM3FCwG",
-    "handler": "closeUIsBtn",
+    "handler": "openAAA",
     "customEventData": ""
   },
   {
@@ -1214,11 +1214,11 @@
     "asset": {
       "__id__": 0
     },
-    "fileId": "e7qgdOaH9CsbvlFelXQ/9T"
+    "fileId": "8dV9JvEN1JqYzRKwCuiO74"
   },
   {
     "__type__": "cc.Node",
-    "_name": "openAAA",
+    "_name": "Button-002",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1
@@ -1246,7 +1246,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -407.084,
+      "y": -551.3,
       "z": 0
     },
     "_lrot": {
@@ -1332,7 +1332,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 163.99,
+      "width": 148.08,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -1344,7 +1344,7 @@
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "11xmaeqgxGO4cOVdakpj/z"
+    "fileId": "8fHmgs3WRAoJDQ5uEls7Qc"
   },
   {
     "__type__": "cc.Label",
@@ -1367,7 +1367,7 @@
       "b": 0,
       "a": 255
     },
-    "_string": "openAAA",
+    "_string": "closeUIs",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 36,
@@ -1388,7 +1388,7 @@
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "ae8/w5qsZMl6rku4f9C/cT"
+    "fileId": "9f0UNqGJtDxbVXg8zqsQx/"
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -1398,7 +1398,7 @@
     "asset": {
       "__id__": 0
     },
-    "fileId": "8bwRGp6oVABbbrbkvkyMKd"
+    "fileId": "e8VRF/TS1B5KxXnYQ/BNx9"
   },
   {
     "__type__": "cc.UITransform",
@@ -1425,7 +1425,7 @@
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "bdB8UwQkJAGqfcOA91gNRl"
+    "fileId": "ae6IZst2JNiptCLYCdmJum"
   },
   {
     "__type__": "cc.Sprite",
@@ -1469,7 +1469,7 @@
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "d1736tlmJGLo7UtPkqaRfz"
+    "fileId": "7aWJ4HN/hIbJ/URojVB84I"
   },
   {
     "__type__": "cc.Button",
@@ -1542,7 +1542,7 @@
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "9c5qEQlgdL5IVMaSa4j8vT"
+    "fileId": "1fsXe3KEVHC4VHdUjLYmlv"
   },
   {
     "__type__": "cc.ClickEvent",
@@ -1551,7 +1551,7 @@
     },
     "component": "",
     "_componentId": "1e32a7/PEJN0YDiuvM3FCwG",
-    "handler": "openAAA",
+    "handler": "closeUIsBtn",
     "customEventData": ""
   },
   {
@@ -1562,7 +1562,7 @@
     "asset": {
       "__id__": 0
     },
-    "fileId": "8dV9JvEN1JqYzRKwCuiO74"
+    "fileId": "e7qgdOaH9CsbvlFelXQ/9T"
   },
   {
     "__type__": "cc.UITransform",

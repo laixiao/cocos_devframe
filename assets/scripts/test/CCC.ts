@@ -23,7 +23,7 @@ export class CCC extends UIView {
     }
 
     closeToUiBtn() {
-        UIManager.instance.closeToUi(UIID.AAA, { nick: "CCC" })
+        // UIManager.instance.closeToUi(UIID.AAA, { nick: "CCC" })
     }
 
     closeUIsBtn() {

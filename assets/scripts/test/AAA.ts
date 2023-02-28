@@ -13,7 +13,7 @@ export class AAA extends UIView {
     public onOpen(data: UIViewData): void {
         console.log(data)
 
-        UIManager.instance.setSpriteFrame(this, "common/texture/alien_magic/spriteFrame", this.icon).then((spriteFrame: SpriteFrame) => { });
+        // UIManager.instance.setSpriteFrame(this, "common/texture/alien_magic/spriteFrame", this.icon).then((spriteFrame: SpriteFrame) => { });
 
         // this.scheduleOnce(() => {
         //     UIManager.instance.setSpriteFrame(this, "common/texture/alien_tongue/spriteFrame", this.icon);
@@ -22,7 +22,7 @@ export class AAA extends UIView {
         // https://oss.99huyu.cn/adsense/production/chengyu/大开眼界.png
 
 
-        this.schedule(this.spawnEnemy, 1, 5);
+        // this.schedule(this.spawnEnemy, 1, 5);
 
 
 
