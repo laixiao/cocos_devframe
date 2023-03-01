@@ -67,6 +67,7 @@ export class AAA extends UIView {
     }
 
     testBtn() {
+        UIManager.instance.open(UIID.AAA, { nick: "AAA" })
         console.log(assetManager)
     }
 
